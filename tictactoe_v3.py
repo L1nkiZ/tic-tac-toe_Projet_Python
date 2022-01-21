@@ -106,7 +106,7 @@ def vainqueur (joueur_en_cours, grille,taille_grille,ligne,colonne):
         return True
     elif verif_colonne (grille, colonne,joueur_en_cours, taille_grille):
         return True
-    elif verif_diago_un (grille,joueur_en_cours, taille_grille):
+    elif verif_diago_une (grille,joueur_en_cours, taille_grille):
         return True
     elif verif_diago_deux (grille,joueur_en_cours, taille_grille):
         return True
@@ -128,7 +128,7 @@ def verif_colonne (grille, colonne,joueur_en_cours, taille_grille):
     return True
 
 
-def verif_diago_un (grille,joueur_en_cours, taille_grille):
+def verif_diago_une (grille,joueur_en_cours, taille_grille):
     for i in range (taille_grille):
         if grille[i][i] != joueur_en_cours:
             return False
@@ -198,34 +198,39 @@ grille_graphique.wait_quit()
 '''
 
 joueur = "X"
+continuer_la_partie = True
+compteur_de_tour = 0
+bool_annulé_le_coup = False
+historique = []
+
+
 taille_grille = int(demander_un_entier("Quel est la valeur de la grille ?"))
 while (taille_grille < 3):
     taille_grille = erreur_taille_grille(taille_grille)
 
+
 grille = crée_grille(taille_grille)
+
 
 grille_graphique = GraphicalGrid(taille_grille)
 
-continuer_la_partie = True
-compteur_de_tour = 0
-historique = []
 
 while(continuer_la_partie):
-    continu = input("La partie dois continuer ?")
+    continu = input("La partie dois continuer ? [O]ui ou [N]on :")
     while (continu != "O" and continu != "N" ): 
         continu = erreur(continu)
     if continu == 'N':
         continuer_la_partie = False
     else:
-
         joueur_actuel(joueur)
 
 
         ligne_str = demander_un_entier("Entrez la valeur de la ligne ?")
-        if ligne_str != "":
+        if ligne_str != "": 
             ligne = int(ligne_str)
             while (ligne < 0 or ligne > taille_grille-1):
                 ligne = erreur_taille(ligne)
+
 
             colonne_str = demander_un_entier("Entrez la valeur de la colonne ?")
             if colonne_str != "":
@@ -233,25 +238,30 @@ while(continuer_la_partie):
                 while (colonne < 0 or colonne > taille_grille-1):
                     colonne = erreur_taille(colonne)
 
+
                 while (grille[ligne][colonne] == 'O' or grille[ligne][colonne] == 'X'):
                     print("La case n'est pas vide ! Saisir à nouveau les valeur")
+
 
                     ligne = int(demander_un_entier("Entrez la valeur de la ligne ?"))
                     while (ligne < 0 or ligne > taille_grille-1):
                         ligne = erreur_taille(ligne)
 
+
                     colonne = int(demander_un_entier("Entrez la valeur de la colonne ?"))
                     while (colonne < 0 or colonne > taille_grille-1):
                         colonne = erreur_taille(colonne)
 
+
                 grille = ecrire(grille, ligne, colonne, joueur)
                 grille_graphique.write(ligne,colonne,joueur)
 
-                compteur_de_tour = compteur_de_tour + 1
                 
                 historique.append((joueur,ligne,colonne))
 
+
                 affiche(grille)
+
 
                 if vainqueur(joueur,grille,taille_grille,ligne,colonne):
                     print ("Le joueur,",joueur," à gagnné !!")
@@ -260,7 +270,31 @@ while(continuer_la_partie):
                     print("égalité, fin de la partie !")
                     continuer_la_partie = False
 
-                joueur=tour(joueur)
+
+                else:
+                    print("Le tour joué est",historique[compteur_de_tour])
+                    annulé_le_coup = input("Voulez vous supprimé le dernier coup joué ? [O]ui ou [N]on :")
+                    while (annulé_le_coup != "O" and annulé_le_coup != "N" ):
+                        annulé_le_coup = erreur(annulé_le_coup)
+
+
+                    if annulé_le_coup == 'O':
+                        bool_annulé_le_coup = True
+                        while bool_annulé_le_coup and compteur_de_tour > 0:
+                            del historique[compteur_de_tour]
+                            grille = effacer(grille, ligne, colonne)
+                            grille_graphique.erase(ligne,colonne)
+                            annulé_le_coup = input("Voulez vous supprimé le dernier coup joué ? [O]ui ou [N]on :")
+                            if annulé_le_coup == 'N':
+                                bool_annulé_le_coup = False
+                            else:
+                                compteur_de_tour = compteur_de_tour -1
+                                print("Le tour précédent est",historique[compteur_de_tour])
+                    
+
+                    else:
+                        joueur=tour(joueur)
+                        compteur_de_tour = compteur_de_tour + 1
 
 
 print ("Historique de la partie",historique)
